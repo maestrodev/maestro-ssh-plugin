@@ -1,5 +1,4 @@
 source "https://rubygems.org"
-source "https://19mFQpkpgWC8xqPZVizB@gem.fury.io/me"
 
 #dependencies
 gem 'maestro_plugin', '>=0.0.4'
