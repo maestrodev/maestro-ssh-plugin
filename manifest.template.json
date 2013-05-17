@@ -73,6 +73,12 @@
           "type": "Integer",
           "value": 10
         },
+        "ignore_errors": {
+          "description": "Ignore Individual Command Errors",
+          "required": false,
+          "type": "Boolean",
+          "value": false
+        },
         "commands": {
           "description": "Set Of Shell Commands",
           "required": true,

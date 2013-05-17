@@ -7,14 +7,20 @@ require 'net/ssh'
 module MaestroDev
   class SSHError < RuntimeError; end
 
+  class SSHConfigError < SSHError
+  end
+
+  class SSHConnectError < SSHError
+  end
+
   class SSHCommon < Maestro::MaestroWorker
     DEFAULT_KEY_TYPE = 'ssh-rsa'
     DEFAULT_RETRIES = 10
     DEFAULT_WAIT = 10
     DEFAULT_PORT = 22
-    
+
     private
-    
+
     def validate_parameters
       @host = get_field('host', '')
       @port = get_field('port', 0)
@@ -25,9 +31,12 @@ module MaestroDev
       @retries = get_field('retries', DEFAULT_RETRIES)
       @wait = get_field('wait', DEFAULT_WAIT)
 
-      raise 'Invalid host' if @host.empty?
-      raise 'Invalid user' if @user.empty?
-      raise 'Invalid key, not found' if !@key_path.empty? and !File.exists?(@key_path)
+      errors = []
+      errors << 'Invalid host' if @host.empty?
+      errors << 'Invalid user' if @user.empty?
+      errors << 'Invalid key, not found' if !@key_path.empty? and !File.exists?(@key_path)
+
+      raise SSHConfigError, errors.join("\n") if !errors.empty?
     end
 
     # Call me with a block, and I'll connect to the server, run your block, and close the connection before leaving
@@ -46,10 +55,10 @@ module MaestroDev
 
       connection = @host
       connection += " port #{@port}" if @port != 0
-      
-      write_output "\nConnecting to #{connection} as #{@user} using auth [#{auth_types.join(', ')}]"
-      
-      start(@host,
+
+      write_output("\nConnecting to #{connection} as #{@user} using auth [#{auth_types.join(', ')}]")
+
+      session = start(@host,
         @user,
         @key_path, 
         @key_type, 
@@ -57,22 +66,21 @@ module MaestroDev
         (@port == 0 ? DEFAULT_PORT : @port),
         @retries,
         @wait)
-
-      set_field('output', '')
-      yield(@session)
+      yield(session)
+    rescue SSHConnectError => e
+      @error = e.message
     rescue Exception => e
-      set_error("Error in SSH connection: #{e.class} #{e}")
+      @error = "Error in SSH connection: #{e.class} #{e}\n" + e.backtrace.join("\n")
     ensure
       close
     end
-
 
     def start(server, user, key_path, key_type, password, port, retries, wait)
       trys = 1
 
       while trys <= retries 
         begin
-          write_output "\nConnect attempt ##{trys}"
+          write_output("\nConnect attempt #{trys}/#{retries}")
           params = {:host_key => key_type,
                     :password => password,
                     :compression => 'zlib',
@@ -85,13 +93,16 @@ module MaestroDev
 
           @session = Net::SSH.start(server, user, params)
 
-          write_output "\nConnected"
+          write_output("\nConnected", :buffer => true)
           trys = retries + 1
         rescue Errno::ECONNREFUSED => e
-          write_output "\nConnection Refused On Try #{trys}"
+          write_output("\nConnection Refused")
           sleep wait
-          trys += 1
-          raise Errno::ECONNREFUSED.new("Failed To Connect To #{server} After #{trys} Trys") if trys >= retries 
+          raise SSHConnectError, "Failed To Connect To #{server} After #{trys} Trys (ECONNREFUSED)" if trys >= retries
+        rescue Net::SSH::AuthenticationFailed => e
+          write_output("\nAuthentication Failed - please check username, password, and any public-keys")
+          trys = retries + 1
+          raise SSHConnectError, "#{e.class} #{e}"
         end
       end
       @session

@@ -18,9 +18,9 @@ module MaestroDev
 
     def upload
       write_output "\nMaestroDev >> SCP UPLOAD task starting"
-      
+
       @operation = :upload
-      
+
       do_ssh do |session|
         begin
           write_output("\nBegin Uploading File", :buffer => true)
@@ -31,18 +31,19 @@ module MaestroDev
           write_output("\nFinished Uploading File #{@path}", :buffer => true)
           set_field('output', "Successfully Uploaded File #{@path} To #{@user}@#{@host}:#{@remote_path}")
         rescue Exception => e
-          raise "SCP Upload Failed: #{e}"
+          @error = "SCP Upload Failed: #{e.class} #{e}"
         end
       end
 
       write_output("\nMaestroDev >> SCP UPLOAD task complete")
+      set_error(@error) if @error
     end
-    
+
     def download
       write_output "\nMaestroDev >> SCP DOWNLOAD task starting"
-      
+
       @operation = :download
-      
+
       do_ssh do |session|
         begin
           write_output("Begin Downloading File", :buffer => true)
@@ -53,11 +54,12 @@ module MaestroDev
           write_output("\nFinished Downloading File #{@path}", :buffer => true)
           set_field('output', "Successfully Uploaded File #{@path} To #{@user}@#{@host}:#{@remote_path}")
         rescue Exception => e
-          raise "SCP Download Failed: #{e}"
+          @error = "SCP Downloadload Failed: #{e.class} #{e}"
         end
       end
 
       write_output "\nMaestroDev >> SCP  DOWNLOAD task complete"
+      set_error(@error) if @error
     end
   end
 end
