@@ -7,6 +7,10 @@ gem 'net-scp', '1.0.4'
 gem 'jruby-openssl'
 gem 'andand', '1.3.1'
 
+group :development do
+  gem 'maestro-plugin-rake-tasks'
+end
+
 group :test do
   gem 'rspec'
   gem 'rcov', '0.9.11'
