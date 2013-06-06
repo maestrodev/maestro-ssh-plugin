@@ -1,4 +1,4 @@
-# Copyright 2011© MaestroDev.  All rights reserved.
+# Copyright 2011 (c) MaestroDev.  All rights reserved.
 require File.join(File.dirname(__FILE__), 'ssh_common')
 
 module MaestroDev
