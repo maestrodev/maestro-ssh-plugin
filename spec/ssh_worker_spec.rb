@@ -17,12 +17,12 @@
 
 require 'spec_helper'
 
-describe MaestroDev::SSHWorker do
+describe MaestroDev::SSHPlugin::SSHWorker do
 
   describe '/ssh/execute' do
     before(:each) do
       Maestro::MaestroWorker.mock!
-      @ssh_worker = MaestroDev::SSHWorker.new
+      @ssh_worker = MaestroDev::SSHPlugin::SSHWorker.new
       @hostname = 'aws-vm.com' #'ec2-204-236-201-166.compute-1.amazonaws.com'
       @key_file = File.join(File.dirname(__FILE__), 'config','lucee-demo-keypair.pem')
       @user = 'root'
@@ -71,7 +71,7 @@ describe MaestroDev::SSHWorker do
 
     it "should set the error field correctly if a command fails (ignore == false)" do
       @ssh_worker.stubs(:start)
-      @ssh_worker.stubs(:perform_command).raises(MaestroDev::SSHCommandError, "ehh?")
+      @ssh_worker.stubs(:perform_command).raises(MaestroDev::SSHPlugin::SSHCommandError, "ehh?")
       workitem = {'fields' => {'host' => @hostname, 'user' => @user, 'key_path' => @key_file, 'commands' => ["export BLAH=blah; ls /", "pwd"]}}
       @ssh_worker.perform(:execute, workitem)
       workitem['fields']['__error__'].should include('ehh?')
@@ -80,7 +80,7 @@ describe MaestroDev::SSHWorker do
 
     it "should not set the error field if a command fails (ignore == true)" do
       @ssh_worker.stubs(:start)
-      @ssh_worker.stubs(:perform_command).raises(MaestroDev::SSHCommandError, "wha?")
+      @ssh_worker.stubs(:perform_command).raises(MaestroDev::SSHPlugin::SSHCommandError, "wha?")
       workitem = {'fields' => {'host' => @hostname, 'user' => @user, 'key_path' => @key_file, 'commands' => ["export BLAH=blah; ls /", "pwd"], 'ignore_errors' => true}}
       @ssh_worker.perform(:execute, workitem)
       workitem['fields']['__error__'].should be_nil

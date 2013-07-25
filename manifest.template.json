@@ -18,7 +18,7 @@
     "license": "Apache 2.0",
     "author":  "Doug Henderson, Kelly Plumer",
     "version": "updated at build time",
-    "class":   "MaestroDev::SSHWorker",
+    "class":   "MaestroDev::SSHPlugin::SSHWorker",
     "type":    "ruby",
     "dependencies":[
     ],
@@ -97,7 +97,7 @@
     "license": "Apache 2.0",
     "author":  "Doug Henderson, Kelly Plumer",
     "version": "updated at build time",
-    "class":   "MaestroDev::SCPWorker",
+    "class":   "MaestroDev::SSHPlugin::SCPWorker",
     "type":    "ruby",
     "dependencies":[
     ],
@@ -176,7 +176,7 @@
     "license": "Apache 2.0",
     "author":  "Doug Henderson, Kelly Plumer",
     "version": "updated at build time",
-    "class":   "MaestroDev::SCPWorker",
+    "class":   "MaestroDev::SSHPlugin::SCPWorker",
     "type":    "ruby",
     "dependencies":[
     ],
