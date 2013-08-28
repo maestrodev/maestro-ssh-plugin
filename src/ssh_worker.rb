@@ -2,17 +2,15 @@
 require File.join(File.dirname(__FILE__), 'ssh_common')
 
 module MaestroDev
-  module SSHPlugin
-    class SSHCommandError < StandardError
-    end
-  
-    class SSHAbortError < StandardError
-    end
+  module Plugin
   
     class SSHWorker < SSHCommon
+      class SSHCommandError < PluginError
+      end
+
       def validate_parameters
         # Making sure to let the base class do its initial validation of all the things
-        super
+        errors = super
   
         # Now do the things that are specific to me
         @commands = get_field('commands') || []
@@ -20,45 +18,32 @@ module MaestroDev
   
         @ignore_errors = get_field('ignore_errors') || false
   
-        raise SSHConfigError, 'No Commands to run' if @commands.empty?
+        errors << 'No commands to run' if @commands.empty?
+        raise ConfigError, "Config Errors: #{errors.join(', ')}"  unless errors.empty?
       end
   
       def execute
-        write_output("\nSSH EXECUTE task starting", :buffer => true)
-  
         error_count = 0
         command_count = 0
   
-        begin
-          do_ssh do |session|
+        do_ssh do |session|
+          @commands.each do |command|
+            command_count += 1
             begin
-              @commands.each do |command|
-                command_count += 1
-                begin
-                  perform_command(session, command)
-                rescue SSHCommandError => e
-                  error_count += 1
-                  raise SSHAbortError, e.message if !@ignore_errors
-                end
+              perform_command(session, command)
+            rescue SSHCommandError => e
+              error_count += 1
+
+              if @ignore_errors
+                write_output(e.message, :buffer => true)
+              else
+                raise PluginError, e.message
               end
-            rescue SSHAbortError => e
-              @error = "SSH Execute Aborted: #{e}"
-            rescue Exception => e
-              @error = "General Exception #{e}\n" + e.backtrace.join("\n")
-            end
-  
-            if error_count > 0
-              write_output("\n#{@commands.size} commands.  #{command_count} excecuted, #{error_count} failed. (ignore_errors = #{@ignore_errors})", :buffer => true)
             end
           end
-        rescue SSHConfigError => e
-          @error = "Problems with configuration: #{e}"
-        rescue Exception => e
-          @error = "General Exception #{e.class} #{e}"
         end
-  
-        write_output "\n\nSSH EXECUTE task complete"
-        set_error(@error) if @error
+      ensure
+        write_output("\nOf #{@commands.size} commands: #{command_count} excecuted, #{error_count} failed. (ignore_errors = #{@ignore_errors})", :buffer => true)
       end
   
       private

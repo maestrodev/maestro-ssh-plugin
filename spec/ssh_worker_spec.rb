@@ -17,12 +17,11 @@
 
 require 'spec_helper'
 
-describe MaestroDev::SSHPlugin::SSHWorker do
+describe MaestroDev::Plugin::SSHWorker do
 
   describe '/ssh/execute' do
     before(:each) do
       Maestro::MaestroWorker.mock!
-      @ssh_worker = MaestroDev::SSHPlugin::SSHWorker.new
       @hostname = 'aws-vm.com' #'ec2-204-236-201-166.compute-1.amazonaws.com'
       @key_file = File.join(File.dirname(__FILE__), 'config','lucee-demo-keypair.pem')
       @user = 'root'
@@ -32,59 +31,59 @@ describe MaestroDev::SSHPlugin::SSHWorker do
 
     it 'should detect if key-file is not found' do
       workitem = {'fields' => {'host' => @hostname, 'user' => 'dingdong', 'key_path' => '/not_real/', 'commands' => ["ls /", "pwd"]}}
-      @ssh_worker.perform(:execute, workitem)
+      subject.perform(:execute, workitem)
       workitem['fields']['__error__'].should include('Invalid key, not found')
     end
 
     it "should connect to a remote server and execute a given set of commands" do
-        @ssh_worker.stubs(:start)
-        @ssh_worker.stubs(:perform_command)
+        subject.stubs(:start)
+        subject.stubs(:perform_command)
         workitem = {'fields' => {'host' => @hostname, 'user' => @user, 'key_path' => @key_file, 'commands' => ["export BLAH=blah; ls /", "pwd"]}}
-        @ssh_worker.perform(:execute, workitem)
+        subject.perform(:execute, workitem)
         workitem['fields']['__error__'].should be_nil
         workitem['__output__'].should_not be_nil
     end
 
     it "should raise an error when it fails to connect to the server" do
-        @ssh_worker.expects(:start).raises(TimeoutError, 'Operation timed out - connect(2)')
+        subject.expects(:start).raises(TimeoutError, 'Operation timed out - connect(2)')
 
         workitem = {'fields' => {'host' => @hostname, 'user' => 'dingdong', 'commands' => ["ls /", "pwd"]}}
-        @ssh_worker.perform(:execute, workitem)
+        subject.perform(:execute, workitem)
         workitem['fields']['__error__'].should include('Timeout')
     end
 
     it "should raise an error when it fails to connect to the server with port" do
-        @ssh_worker.expects(:start).raises(Errno::ECONNREFUSED, 'Error in SSH connection: Connection refused - Failed To Connect To localhost After 5 Trys')
+        subject.expects(:start).raises(Errno::ECONNREFUSED, 'Error in SSH connection: Connection refused - Failed To Connect To localhost After 5 Trys')
 
         workitem = {'fields' => {'host' => 'localhost', 'user' => 'bob', 'port' => 22222, 'commands' => ["ls /", "pwd"]}}
-        @ssh_worker.perform(:execute, workitem)
+        subject.perform(:execute, workitem)
         workitem['fields']['__error__'].should include('Error in SSH connection: Connection refused - Failed To Connect To localhost After 5 Trys')
     end
 
     it "should raise an error when it fails to connect to the server with wrong username" do
-        @ssh_worker.expects(:start).raises(Exception, 'Error in SSH connection: kelly')
+        subject.expects(:start).raises(Exception, 'Error in SSH connection: kelly')
 
         workitem = {'fields' => {'host' => 'localhost', 'user' => 'kelly', 'password' => 'notright', 'commands' => ["ls /", "pwd"]}}
-        @ssh_worker.perform(:execute, workitem)
+        subject.perform(:execute, workitem)
         workitem['fields']['__error__'].should include('Error in SSH connection: kelly')
     end
 
     it "should set the error field correctly if a command fails (ignore == false)" do
-      @ssh_worker.stubs(:start)
-      @ssh_worker.stubs(:perform_command).raises(MaestroDev::SSHPlugin::SSHCommandError, "ehh?")
+      subject.stubs(:start)
+      subject.stubs(:perform_command).raises(MaestroDev::Plugin::SSHWorker::SSHCommandError, "ehh?")
       workitem = {'fields' => {'host' => @hostname, 'user' => @user, 'key_path' => @key_file, 'commands' => ["export BLAH=blah; ls /", "pwd"]}}
-      @ssh_worker.perform(:execute, workitem)
+      subject.perform(:execute, workitem)
       workitem['fields']['__error__'].should include('ehh?')
-      workitem['__output__'].should include("\n2 commands.  1 excecuted, 1 failed. (ignore_errors = false)\n")
+      workitem['__output__'].should include("\nOf 2 commands: 1 excecuted, 1 failed. (ignore_errors = false)")
     end
 
     it "should not set the error field if a command fails (ignore == true)" do
-      @ssh_worker.stubs(:start)
-      @ssh_worker.stubs(:perform_command).raises(MaestroDev::SSHPlugin::SSHCommandError, "wha?")
+      subject.stubs(:start)
+      subject.stubs(:perform_command).raises(MaestroDev::Plugin::SSHWorker::SSHCommandError, "wha?")
       workitem = {'fields' => {'host' => @hostname, 'user' => @user, 'key_path' => @key_file, 'commands' => ["export BLAH=blah; ls /", "pwd"], 'ignore_errors' => true}}
-      @ssh_worker.perform(:execute, workitem)
+      subject.perform(:execute, workitem)
       workitem['fields']['__error__'].should be_nil
-      workitem['__output__'].should include("\n2 commands.  2 excecuted, 2 failed. (ignore_errors = true)\n")
+      workitem['__output__'].should include("\nOf 2 commands: 2 excecuted, 2 failed. (ignore_errors = true)")
     end
   end
 end

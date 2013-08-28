@@ -5,14 +5,7 @@ require 'maestro_plugin'
 require 'net/ssh'
 
 module MaestroDev
-  module SSHPlugin
-    class SSHError < RuntimeError; end
-  
-    class SSHConfigError < SSHError
-    end
-  
-    class SSHConnectError < SSHError
-    end
+  module Plugin
   
     class SSHCommon < Maestro::MaestroWorker
       DEFAULT_KEY_TYPE = 'ssh-rsa'
@@ -37,7 +30,7 @@ module MaestroDev
         errors << 'Invalid user' if @user.empty?
         errors << 'Invalid key, not found' if !@key_path.empty? and !File.exists?(@key_path)
   
-        raise SSHConfigError, errors.join("\n") if !errors.empty?
+        errors
       end
   
       # Call me with a block, and I'll connect to the server, run your block, and close the connection before leaving
@@ -68,18 +61,21 @@ module MaestroDev
           @retries,
           @wait)
         yield(session)
-      rescue SSHConnectError => e
-        @error = e.message
+      rescue PluginError
+        # Re-raise
+        raise
       rescue Exception => e
-        @error = "Error in SSH connection: #{e.class} #{e}\n" + e.backtrace.join("\n")
+        raise PluginError, "Error in SSH connection: #{e.class} #{e}\n" + e.backtrace.join("\n")
       ensure
         close
       end
   
       def start(server, user, key_path, key_type, password, port, retries, wait)
-        trys = 1
+        trys = 0
   
         while trys <= retries 
+          trys += 1
+
           begin
             write_output("\nConnect attempt #{trys}/#{retries}")
             params = {:host_key => key_type,
@@ -99,11 +95,9 @@ module MaestroDev
           rescue Errno::ECONNREFUSED => e
             write_output("\nConnection Refused")
             sleep wait
-            raise SSHConnectError, "Failed To Connect To #{server} After #{trys} Trys (ECONNREFUSED)" if trys >= retries
+            raise PluginError, "Failed To Connect To #{server} After #{trys} Trys (ECONNREFUSED)" if trys >= retries
           rescue Net::SSH::AuthenticationFailed => e
-            write_output("\nAuthentication Failed - please check username, password, and any public-keys")
-            trys = retries + 1
-            raise SSHConnectError, "#{e.class} #{e}"
+            raise PluginError, "Authentication Failed - please check username, password, and any public-keys. #{e.class} #{e}"
           end
         end
         @session

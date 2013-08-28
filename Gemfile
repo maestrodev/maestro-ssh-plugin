@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 
 #dependencies
-gem 'maestro_plugin', '>=0.0.4'
+gem 'maestro_plugin', '>=0.0.17'
 gem 'net-ssh', '2.2.1'
 gem 'net-scp', '1.0.4'
 gem 'jruby-openssl'

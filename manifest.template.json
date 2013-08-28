@@ -1,4 +1,5 @@
 {
+  "image": "ssh-execute.png",
   "source_types": [{
     "name": "SSH",
     "options": {
@@ -18,7 +19,7 @@
     "license": "Apache 2.0",
     "author":  "Doug Henderson, Kelly Plumer",
     "version": "updated at build time",
-    "class":   "MaestroDev::SSHPlugin::SSHWorker",
+    "class":   "MaestroDev::Plugin::SSHWorker",
     "type":    "ruby",
     "dependencies":[
     ],
@@ -97,7 +98,7 @@
     "license": "Apache 2.0",
     "author":  "Doug Henderson, Kelly Plumer",
     "version": "updated at build time",
-    "class":   "MaestroDev::SSHPlugin::SCPWorker",
+    "class":   "MaestroDev::Plugin::SCPWorker",
     "type":    "ruby",
     "dependencies":[
     ],
@@ -176,7 +177,7 @@
     "license": "Apache 2.0",
     "author":  "Doug Henderson, Kelly Plumer",
     "version": "updated at build time",
-    "class":   "MaestroDev::SSHPlugin::SCPWorker",
+    "class":   "MaestroDev::Plugin::SCPWorker",
     "type":    "ruby",
     "dependencies":[
     ],
