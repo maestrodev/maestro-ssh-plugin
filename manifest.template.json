@@ -11,7 +11,7 @@
       "key_type": "String",
       "retries": "Integer",
       "wait": "Integer",
-      "update-host-key": "Boolean"
+      "update_host_key": "Boolean"
     }
   }],
   "tasks": [{
