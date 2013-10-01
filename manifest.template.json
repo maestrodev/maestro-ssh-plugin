@@ -10,7 +10,8 @@
       "key_path": "String",
       "key_type": "String",
       "retries": "Integer",
-      "wait": "Integer"
+      "wait": "Integer",
+      "update-host-key": "Boolean"
     }
   }],
   "tasks": [{
@@ -85,6 +86,12 @@
           "required": true,
           "type": "Array",
           "value": []
+        },
+        "update_host_key": {
+          "description": "Attempt to update the ssh host-key if mismatch detected",
+          "required": false,
+          "type": "Boolean",
+          "value": false
         }
       },
       "outputs": {"output" : {"type" : "String"}},
@@ -164,6 +171,12 @@
           "required": true,
           "type": "String",
           "value": ""
+        },
+        "update_host_key": {
+          "description": "Attempt to update the ssh host-key if mismatch detected",
+          "required": false,
+          "type": "Boolean",
+          "value": false
         }
       },
       "outputs" : {"output" : {"type" : "String"}},
@@ -243,6 +256,12 @@
           "required": true,
           "type": "String",
           "value": ""
+        },
+        "update_host_key": {
+          "description": "Attempt to update the ssh host-key if mismatch detected",
+          "required": false,
+          "type": "Boolean",
+          "value": false
         }
       },
       "outputs" : {"output" : {"type" : "String"}},
