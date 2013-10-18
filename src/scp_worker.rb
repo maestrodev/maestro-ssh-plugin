@@ -13,8 +13,8 @@ module MaestroDev
         @path = get_field('path', '')
         @remote_path = get_field('remote_path', '')
   
-        errors << 'Invalid path, not found' if @path.empty? || (@operation == :upload && !File.exists?(@path))
-        errors << 'Invalid remote_path' if @remote_path.empty?
+        errors << "Invalid path, not found: '#{@path}'" if @path.empty? || (@operation == :upload && !File.exists?(@path))
+        errors << 'Empty remote_path' if @remote_path.empty?
 
         raise ConfigError, "Configuration Errors: #{errors.join(', ')}" unless errors.empty?
       end
