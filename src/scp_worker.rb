@@ -23,7 +23,7 @@ module MaestroDev
         @operation = :upload
   
         do_ssh do |session|
-          write_output("\nBegin Uploading File", :buffer => true)
+          write_output("\nBegin Uploading File #{@path} to #{@user}@#{@host}:#{@port}:#{@remote_path}", :buffer => true)
           session.scp.upload!(@path, @remote_path) do |ch, name, sent, total|
             write_output("\n#{name}: #{sent}/#{total}", :buffer => true)
           end
@@ -37,7 +37,7 @@ module MaestroDev
         @operation = :download
   
         do_ssh do |session|
-          write_output("Begin Downloading File", :buffer => true)
+          write_output("Begin Downloading File #{@user}@#{@host}:#{@port}:#{@remote_path} to #{@path}", :buffer => true)
           session.scp.download!(@remote_path, @path) do |ch, name, sent, total|
             write_output("\n#{name}: #{sent}/#{total}", :buffer => true)
           end
