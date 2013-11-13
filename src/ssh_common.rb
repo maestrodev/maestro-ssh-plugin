@@ -20,6 +20,7 @@ module MaestroDev
         @port = get_int_field('port', DEFAULT_PORT)
         @user = get_field('user', '')
         @key_path = get_field('key_path', '')
+        @key_path = File.expand_path(@key_path) unless @key_path.empty?
         @key_type = get_field('key_type', DEFAULT_KEY_TYPE)
         @password = get_field('password')
         @retries = get_int_field('retries', DEFAULT_RETRIES)
@@ -27,9 +28,12 @@ module MaestroDev
         @update_host_key = get_boolean_field('update_host_key')
 
         errors = []
-        errors << 'Invalid host' if @host.empty?
-        errors << 'Invalid user' if @user.empty?
-        errors << 'Invalid key, not found' if !@key_path.empty? and !File.exists?(@key_path)
+        errors << 'Invalid empty host' if @host.empty?
+        errors << 'Invalid empty user' if @user.empty?
+        unless @key_path.empty?
+          errors << "Invalid key, not found: #{@key_path}" unless File.exists?(@key_path)
+          errors << "Invalid key, it is a directory: #{@key_path}" if File.directory?(@key_path)
+        end
 
         errors
       end
