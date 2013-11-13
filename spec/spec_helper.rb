@@ -24,4 +24,7 @@ require 'ssh_worker'
 
 RSpec.configure do |config|
   config.mock_framework = :mocha
+  config.before(:each) do
+    Maestro::MaestroWorker.mock!
+  end
 end
