@@ -71,7 +71,7 @@ module MaestroDev
         session.open_channel do |channel|
           channel.exec(command) do |ch, success|
             channel.on_data do |ch,data|
-              # Called when outut received (i.e. stdout)
+              # Called when output received (i.e. stdout)
               combined_data+=data
               write_output(data, :buffer => true)
             end
