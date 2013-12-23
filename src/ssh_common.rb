@@ -80,6 +80,7 @@ module MaestroDev
 
         while trys <= retries 
           trys += 1
+          start = Time.now
 
           begin
             write_output("\nConnect attempt #{trys}/#{retries}")
@@ -112,10 +113,10 @@ module MaestroDev
               end
             end
 
-            write_output("\nConnected", :buffer => true)
+            write_output("\nConnected (#{Time.now - start}s)", :buffer => true)
             trys = retries + 1
           rescue Errno::ECONNREFUSED => e
-            write_output("\nConnection Refused")
+            write_output("\nConnection Refused (#{Time.now - start}s). Sleeping for #{wait}s")
             sleep wait
             raise PluginError, "Failed To Connect To #{server} After #{trys} Trys (ECONNREFUSED)" if trys >= retries
           rescue Net::SSH::AuthenticationFailed => e
