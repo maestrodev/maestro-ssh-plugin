@@ -11,6 +11,7 @@
       "key_type": "String",
       "retries": "Integer",
       "wait": "Integer",
+      "timeout": "Integer",
       "update_host_key": "Boolean"
     }
   }],
@@ -70,10 +71,16 @@
           "value": 10
         },
         "wait": {
-          "description": "Time To Wait For Connection (Seconds)",
+          "description": "Time To Wait Between Connections (Seconds)",
           "required": false,
           "type": "Integer",
           "value": 10
+        },
+        "timeout": {
+          "description": "How long to wait for the initial connection to be made (Seconds)",
+          "required": false,
+          "type": "Integer",
+          "value": 60
         },
         "ignore_errors": {
           "description": "Ignore Individual Command Errors",
@@ -155,10 +162,16 @@
           "value": 10
         },
         "wait": {
-          "description": "Time To Wait For Connection (Seconds)",
+          "description": "Time To Wait Between Connections (Seconds)",
           "required": false,
           "type": "Integer",
           "value": 10
+        },
+        "timeout": {
+          "description": "How long to wait for the initial connection to be made (Seconds)",
+          "required": false,
+          "type": "Integer",
+          "value": 60
         },
         "path": {
           "description": "Location of existing file on local filesystem",
@@ -240,10 +253,16 @@
           "value": 10
         },
         "wait": {
-          "description": "Time To Wait For Connection (Seconds)",
+          "description": "Time To Wait Between Connections (Seconds)",
           "required": false,
           "type": "Integer",
           "value": 10
+        },
+        "timeout": {
+          "description": "How long to wait for the initial connection to be made (Seconds)",
+          "required": false,
+          "type": "Integer",
+          "value": 60
         },
         "path": {
           "description": "Location on local filesystem to store the file",

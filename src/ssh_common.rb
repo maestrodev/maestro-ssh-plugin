@@ -11,6 +11,7 @@ module MaestroDev
       DEFAULT_KEY_TYPE = 'ssh-rsa'
       DEFAULT_RETRIES = 10
       DEFAULT_WAIT = 10
+      DEFAULT_TIMEOUT = 60
       DEFAULT_PORT = 22
 
       private
@@ -25,6 +26,7 @@ module MaestroDev
         @password = get_field('password')
         @retries = get_int_field('retries', DEFAULT_RETRIES)
         @wait = get_int_field('wait', DEFAULT_WAIT)
+        @timeout = get_int_field('timeout', DEFAULT_TIMEOUT)
         @update_host_key = get_boolean_field('update_host_key')
 
         errors = []
@@ -57,14 +59,15 @@ module MaestroDev
 
         write_output("\nConnecting to #{connection} as #{@user} using auth [#{auth_types.join(', ')}]")
 
-        session = start(@host,
-          @user,
-          @key_path, 
-          @key_type, 
-          @password,
-          (@port == 0 ? DEFAULT_PORT : @port),
-          @retries,
-          @wait)
+        options = {
+          :host_key => @key_type,
+          :password => @password,
+          :port => @port == 0 ? DEFAULT_PORT : @port,
+          :timeout => @timeout,
+        }
+        options[:keys] = [@key_path] unless @key_path.empty?
+
+        session = start(@host, @user, options, @retries, @wait)
         yield(session)
       rescue PluginError
         # Re-raise
@@ -75,34 +78,29 @@ module MaestroDev
         close
       end
 
-      def start(server, user, key_path, key_type, password, port, retries, wait)
+      def start(server, user, options, retries, wait)
         trys = 0
 
-        while trys <= retries 
+        while trys <= retries
           trys += 1
           start = Time.now
 
           begin
             write_output("\nConnect attempt #{trys}/#{retries}")
-            params = {:host_key => key_type,
-                      :password => password,
-                      :compression => 'zlib',
-                      :port => port,
-                      :auth_methods => ["publickey", "hostbased", "password"]}
-
-            if !key_path.empty?
-              params[:keys] = [ key_path ]
-            end
+            options = {
+              :compression => 'zlib',
+              :auth_methods => ["publickey", "hostbased", "password"]
+            }.merge(options)
 
             begin
-              @session = Net::SSH.start(server, user, params)
+              @session = Net::SSH.start(server, user, options)
             rescue Net::SSH::HostKeyMismatch => e
               if @update_host_key
                 write_output("\nUpdating changed host-key")
                 e.remember_host!
 
                 # Easy retry... if it still fails, it'll drop thru to default exception handler
-                @session = Net::SSH.start(server, user, params)
+                @session = Net::SSH.start(server, user, options)
               else
                 # If update_host_key not set, let this error propagate
                 raise PluginError, "Host key mismatch - this happens when the host being connected to " +
