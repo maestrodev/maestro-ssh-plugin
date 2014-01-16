@@ -1,291 +1,304 @@
 {
   "image": "ssh-execute.png",
-  "source_types": [{
-    "name": "SSH",
-    "options": {
-      "host": "String",
-      "port": "Integer",
-      "user": "String",
-      "password": "Password",
-      "key_path": "String",
-      "key_type": "String",
-      "retries": "Integer",
-      "wait": "Integer",
-      "timeout": "Integer",
-      "update_host_key": "Boolean"
+  "source_types": [
+    {
+      "name": "SSH",
+      "options": {
+        "host": "String",
+        "port": "Integer",
+        "user": "String",
+        "password": "Password",
+        "key_path": "String",
+        "key_type": "String",
+        "retries": "Integer",
+        "wait": "Integer",
+        "timeout": "Integer",
+        "update_host_key": "Boolean"
+      }
     }
-  }],
-  "tasks": [{
-    "name": "ssh execute (agent)",
-    "description": "Run A Shell Command Via SSH",
-    "license": "Apache 2.0",
-    "author":  "Doug Henderson, Kelly Plumer",
-    "version": "updated at build time",
-    "class":   "MaestroDev::Plugin::SSHWorker",
-    "type":    "ruby",
-    "dependencies":[
-    ],
-    "task":{
-      "command": "/ssh/execute",
-      "inputs": {
-        "host": {
-          "description": "Hostname Of The Remote Server",
-          "required": false,
-          "type": "String",
-          "value": "localhost"
+  ],
+  "tasks": [
+    {
+      "name": "ssh execute (agent)",
+      "description": "Run A Shell Command Via SSH",
+      "license": "Apache 2.0",
+      "author": "Doug Henderson, Kelly Plumer",
+      "version": "updated at build time",
+      "class": "MaestroDev::Plugin::SSHWorker",
+      "type": "ruby",
+      "dependencies": [],
+      "task": {
+        "command": "/ssh/execute",
+        "inputs": {
+          "host": {
+            "description": "Hostname Of The Remote Server",
+            "required": false,
+            "type": "String",
+            "value": "localhost"
+          },
+          "port": {
+            "description": "Port Of The Remote Server",
+            "required": false,
+            "type": "Integer",
+            "value": null
+          },
+          "user": {
+            "description": "User To Authenticate As",
+            "required": true,
+            "type": "String",
+            "value": ""
+          },
+          "key_path": {
+            "description": "Key Used For Authentication",
+            "required": false,
+            "type": "String",
+            "value": ""
+          },
+          "key_type": {
+            "description": "Type Of Key Encryption",
+            "required": false,
+            "type": "String",
+            "value": ""
+          },
+          "password": {
+            "description": "Password To Use For Login To Remote",
+            "required": false,
+            "type": "Password",
+            "value": ""
+          },
+          "retries": {
+            "description": "Times To Retry Connection",
+            "required": false,
+            "type": "Integer",
+            "value": 10
+          },
+          "wait": {
+            "description": "Time To Wait Between Connections (Seconds)",
+            "required": false,
+            "type": "Integer",
+            "value": 10
+          },
+          "timeout": {
+            "description": "How long to wait for the initial connection to be made (Seconds)",
+            "required": false,
+            "type": "Integer",
+            "value": 60
+          },
+          "ignore_errors": {
+            "description": "Ignore Individual Command Errors",
+            "required": false,
+            "type": "Boolean",
+            "value": false
+          },
+          "commands": {
+            "description": "Set Of Shell Commands",
+            "required": true,
+            "type": "Array",
+            "value": []
+          },
+          "update_host_key": {
+            "description": "Attempt to update the ssh host-key if mismatch detected",
+            "required": false,
+            "type": "Boolean",
+            "value": false
+          }
         },
-        "port": {
-          "description": "Port Of The Remote Server",
-          "required": false,
-          "type": "Integer",
-          "value": null
+        "outputs": {
+          "output": {
+            "type": "String"
+          }
         },
-        "user": {
-          "description": "User To Authenticate As",
-          "required": true,
-          "type": "String",
-          "value": ""
+        "tool_name": "SSH",
+        "icon": "ssh-execute.png"
+      }
+    },
+    {
+      "name": "scp upload",
+      "description": "Copy a file to a remote server via SCP",
+      "license": "Apache 2.0",
+      "author": "Doug Henderson, Kelly Plumer",
+      "version": "updated at build time",
+      "class": "MaestroDev::Plugin::SCPWorker",
+      "type": "ruby",
+      "dependencies": [],
+      "task": {
+        "command": "/scp/upload",
+        "inputs": {
+          "host": {
+            "description": "Hostname Of The Remote Server",
+            "required": false,
+            "type": "String",
+            "value": "localhost"
+          },
+          "port": {
+            "description": "Port Of The Remote Server",
+            "required": false,
+            "type": "Integer",
+            "value": null
+          },
+          "user": {
+            "description": "User To Authenticate As",
+            "required": true,
+            "type": "String",
+            "value": ""
+          },
+          "key_path": {
+            "description": "Key Used For Authentication",
+            "required": false,
+            "type": "String",
+            "value": ""
+          },
+          "key_type": {
+            "description": "Type Of Key Encryption",
+            "required": false,
+            "type": "String",
+            "value": ""
+          },
+          "password": {
+            "description": "Password To Use For Login To Remote",
+            "required": false,
+            "type": "Password",
+            "value": ""
+          },
+          "retries": {
+            "description": "Times To Retry Connection",
+            "required": false,
+            "type": "Integer",
+            "value": 10
+          },
+          "wait": {
+            "description": "Time To Wait Between Connections (Seconds)",
+            "required": false,
+            "type": "Integer",
+            "value": 10
+          },
+          "timeout": {
+            "description": "How long to wait for the initial connection to be made (Seconds)",
+            "required": false,
+            "type": "Integer",
+            "value": 60
+          },
+          "path": {
+            "description": "Location of existing file on local filesystem",
+            "required": true,
+            "type": "String",
+            "value": ""
+          },
+          "remote_path": {
+            "description": "Location on remote filesystem to store the file",
+            "required": true,
+            "type": "String",
+            "value": ""
+          },
+          "update_host_key": {
+            "description": "Attempt to update the ssh host-key if mismatch detected",
+            "required": false,
+            "type": "Boolean",
+            "value": false
+          }
         },
-        "key_path": {
-          "description": "Key Used For Authentication",
-          "required": false,
-          "type": "String",
-          "value": ""
+        "outputs": {
+          "output": {
+            "type": "String"
+          }
         },
-        "key_type": {
-          "description": "Type Of Key Encryption",
-          "required": false,
-          "type": "String",
-          "value": ""
+        "tool_name": "SSH",
+        "icon": "scp-upload.png"
+      }
+    },
+    {
+      "name": "scp download",
+      "description": "Copy a file from a remote server using SCP",
+      "license": "Apache 2.0",
+      "author": "Doug Henderson, Kelly Plumer",
+      "version": "updated at build time",
+      "class": "MaestroDev::Plugin::SCPWorker",
+      "type": "ruby",
+      "dependencies": [],
+      "task": {
+        "command": "/scp/download",
+        "inputs": {
+          "host": {
+            "description": "Hostname Of The Remote Server",
+            "required": false,
+            "type": "String",
+            "value": "localhost"
+          },
+          "port": {
+            "description": "Port Of The Remote Server",
+            "required": false,
+            "type": "Integer",
+            "value": null
+          },
+          "user": {
+            "description": "User To Authenticate As",
+            "required": true,
+            "type": "String",
+            "value": ""
+          },
+          "key_path": {
+            "description": "Key Used For Authentication",
+            "required": false,
+            "type": "String",
+            "value": ""
+          },
+          "key_type": {
+            "description": "Type Of Key Encryption",
+            "required": false,
+            "type": "String",
+            "value": ""
+          },
+          "password": {
+            "description": "Password To Use For Login To Remote",
+            "required": false,
+            "type": "Password",
+            "value": ""
+          },
+          "retries": {
+            "description": "Times To Retry Connection",
+            "required": false,
+            "type": "Integer",
+            "value": 10
+          },
+          "wait": {
+            "description": "Time To Wait Between Connections (Seconds)",
+            "required": false,
+            "type": "Integer",
+            "value": 10
+          },
+          "timeout": {
+            "description": "How long to wait for the initial connection to be made (Seconds)",
+            "required": false,
+            "type": "Integer",
+            "value": 60
+          },
+          "path": {
+            "description": "Location on local filesystem to store the file",
+            "required": true,
+            "type": "String",
+            "value": ""
+          },
+          "remote_path": {
+            "description": "Location of existing file on remote filesystem",
+            "required": true,
+            "type": "String",
+            "value": ""
+          },
+          "update_host_key": {
+            "description": "Attempt to update the ssh host-key if mismatch detected",
+            "required": false,
+            "type": "Boolean",
+            "value": false
+          }
         },
-        "password": {
-          "description": "Password To Use For Login To Remote",
-          "required": false,
-          "type": "Password",
-          "value": ""
+        "outputs": {
+          "output": {
+            "type": "String"
+          }
         },
-        "retries": {
-          "description": "Times To Retry Connection",
-          "required": false,
-          "type": "Integer",
-          "value": 10
-        },
-        "wait": {
-          "description": "Time To Wait Between Connections (Seconds)",
-          "required": false,
-          "type": "Integer",
-          "value": 10
-        },
-        "timeout": {
-          "description": "How long to wait for the initial connection to be made (Seconds)",
-          "required": false,
-          "type": "Integer",
-          "value": 60
-        },
-        "ignore_errors": {
-          "description": "Ignore Individual Command Errors",
-          "required": false,
-          "type": "Boolean",
-          "value": false
-        },
-        "commands": {
-          "description": "Set Of Shell Commands",
-          "required": true,
-          "type": "Array",
-          "value": []
-        },
-        "update_host_key": {
-          "description": "Attempt to update the ssh host-key if mismatch detected",
-          "required": false,
-          "type": "Boolean",
-          "value": false
-        }
-      },
-      "outputs": {"output" : {"type" : "String"}},
-      "tool_name": "SSH",
-      "icon": "ssh-execute.png"
+        "tool_name": "SSH",
+        "icon": "scp-download.png"
+      }
     }
-  },
-  {
-    "name": "scp upload",
-    "description": "Copy a file to a remote server via SCP",
-    "license": "Apache 2.0",
-    "author":  "Doug Henderson, Kelly Plumer",
-    "version": "updated at build time",
-    "class":   "MaestroDev::Plugin::SCPWorker",
-    "type":    "ruby",
-    "dependencies":[
-    ],
-    "task":{
-      "command": "/scp/upload",
-      "inputs": {
-        "host": {
-          "description": "Hostname Of The Remote Server",
-          "required": false,
-          "type": "String",
-          "value": "localhost"
-        },
-        "port": {
-          "description": "Port Of The Remote Server",
-          "required": false,
-          "type": "Integer",
-          "value": null
-        },
-        "user": {
-          "description": "User To Authenticate As",
-          "required": true,
-          "type": "String",
-          "value": ""
-        },
-        "key_path": {
-          "description": "Key Used For Authentication",
-          "required": false,
-          "type": "String",
-          "value": ""
-        },
-        "key_type": {
-          "description": "Type Of Key Encryption",
-          "required": false,
-          "type": "String",
-          "value": ""
-        },
-        "password": {
-          "description": "Password To Use For Login To Remote",
-          "required": false,
-          "type": "Password",
-          "value": ""
-        },
-        "retries": {
-          "description": "Times To Retry Connection",
-          "required": false,
-          "type": "Integer",
-          "value": 10
-        },
-        "wait": {
-          "description": "Time To Wait Between Connections (Seconds)",
-          "required": false,
-          "type": "Integer",
-          "value": 10
-        },
-        "timeout": {
-          "description": "How long to wait for the initial connection to be made (Seconds)",
-          "required": false,
-          "type": "Integer",
-          "value": 60
-        },
-        "path": {
-          "description": "Location of existing file on local filesystem",
-          "required": true,
-          "type": "String",
-          "value": ""
-        },
-        "remote_path": {
-          "description": "Location on remote filesystem to store the file",
-          "required": true,
-          "type": "String",
-          "value": ""
-        },
-        "update_host_key": {
-          "description": "Attempt to update the ssh host-key if mismatch detected",
-          "required": false,
-          "type": "Boolean",
-          "value": false
-        }
-      },
-      "outputs" : {"output" : {"type" : "String"}},
-      "tool_name": "SSH",
-      "icon": "scp-upload.png"
-    }
-  },
-  {
-    "name": "scp download",
-    "description": "Copy a file from a remote server using SCP",
-    "license": "Apache 2.0",
-    "author":  "Doug Henderson, Kelly Plumer",
-    "version": "updated at build time",
-    "class":   "MaestroDev::Plugin::SCPWorker",
-    "type":    "ruby",
-    "dependencies":[
-    ],
-    "task":{
-      "command": "/scp/download",
-      "inputs": {
-        "host": {
-          "description": "Hostname Of The Remote Server",
-          "required": false,
-          "type": "String",
-          "value": "localhost"
-        },
-        "port": {
-          "description": "Port Of The Remote Server",
-          "required": false,
-          "type": "Integer",
-          "value": null
-        },
-        "user": {
-          "description": "User To Authenticate As",
-          "required": true,
-          "type": "String",
-          "value": ""
-        },
-        "key_path": {
-          "description": "Key Used For Authentication",
-          "required": false,
-          "type": "String",
-          "value": ""
-        },
-        "key_type": {
-          "description": "Type Of Key Encryption",
-          "required": false,
-          "type": "String",
-          "value": ""
-        },
-        "password": {
-          "description": "Password To Use For Login To Remote",
-          "required": false,
-          "type": "Password",
-          "value": ""
-        },
-        "retries": {
-          "description": "Times To Retry Connection",
-          "required": false,
-          "type": "Integer",
-          "value": 10
-        },
-        "wait": {
-          "description": "Time To Wait Between Connections (Seconds)",
-          "required": false,
-          "type": "Integer",
-          "value": 10
-        },
-        "timeout": {
-          "description": "How long to wait for the initial connection to be made (Seconds)",
-          "required": false,
-          "type": "Integer",
-          "value": 60
-        },
-        "path": {
-          "description": "Location on local filesystem to store the file",
-          "required": true,
-          "type": "String",
-          "value": ""
-        },
-        "remote_path": {
-          "description": "Location of existing file on remote filesystem",
-          "required": true,
-          "type": "String",
-          "value": ""
-        },
-        "update_host_key": {
-          "description": "Attempt to update the ssh host-key if mismatch detected",
-          "required": false,
-          "type": "Boolean",
-          "value": false
-        }
-      },
-      "outputs" : {"output" : {"type" : "String"}},
-      "tool_name": "SSH",
-      "icon": "scp-download.png"
-    }
-  }]
+  ]
 }
