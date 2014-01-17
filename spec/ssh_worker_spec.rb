@@ -23,6 +23,7 @@ describe MaestroDev::Plugin::SSHWorker do
   let(:key_file) { File.join(File.dirname(__FILE__), 'config','lucee-demo-keypair.pem') }
   let(:user) { 'root' }
   let(:fields) {{'host' => hostname, 'user' => user, 'key_path' => key_file, 'commands' => ["export BLAH=blah; ls /", "pwd"]}}
+  let(:workitem) {{'fields' => fields}}
 
   describe '/ssh/execute' do
 
@@ -33,57 +34,58 @@ describe MaestroDev::Plugin::SSHWorker do
       its(:error) { should eq("Config Errors: Invalid key, not found: #{File.expand_path(key_path)}") }
     end
 
-    it "should connect to a remote server and execute a given set of commands" do
-      subject.stubs(:start)
-      subject.stubs(:perform_command)
-      workitem = {'fields' => fields}
-      subject.perform(:execute, workitem)
-      workitem['fields']['__error__'].should be_nil
-      workitem['__output__'].should_not be_nil
+    context "when connecting to a remote server and executing a given set of commands" do
+      before do
+        subject.stubs(:start)
+        subject.stubs(:perform_command)
+        subject.perform(:execute, workitem)
+      end
+      its(:error) { should be_nil }
+      its(:output) { should_not be_nil }
     end
 
-    it "should raise an error when it fails to connect to the server" do
-      subject.expects(:start).raises(TimeoutError, 'Operation timed out - connect(2)')
-
-      workitem = {'fields' => fields}
-      subject.perform(:execute, workitem)
-      workitem['fields']['__error__'].should include('Timeout')
+    context "when it fails to connect to the server" do
+      before do
+        subject.expects(:start).raises(TimeoutError, 'Operation timed out - connect(2)')
+        subject.perform(:execute, workitem)
+      end
+      its(:error) { should include('Timeout') }
     end
 
-    it "should raise an error when it fails to connect to the server with port" do
-      subject.expects(:start).raises(Errno::ECONNREFUSED, 'Error in SSH connection: Connection refused - Failed To Connect To localhost After 5 Trys')
-
-      workitem = {'fields' => fields.merge({'port' => 22222})}
-      subject.perform(:execute, workitem)
-      workitem['fields']['__error__'].should include('Error in SSH connection: Connection refused - Failed To Connect To localhost After 5 Trys')
+    context "when it fails to connect to the server with port" do
+      let(:fields) { super().merge({'port' => 22222}) }
+      before do
+        subject.expects(:start).raises(Errno::ECONNREFUSED, 'Error in SSH connection: Connection refused - Failed To Connect To localhost After 5 Trys')
+        subject.perform(:execute, workitem)
+      end
+      its(:error) { should include('Error in SSH connection: Connection refused - Failed To Connect To localhost After 5 Trys') }
     end
 
-    it "should raise an error when it fails to connect to the server with wrong username" do
-      subject.expects(:start).raises(Exception, 'Error in SSH connection: kelly')
-
-      workitem = {'fields' => fields.merge({'user' => 'kelly'})}
-      subject.perform(:execute, workitem)
-      workitem['fields']['__error__'].should include('Error in SSH connection: kelly')
+    context "when it fails to connect to the server with wrong username" do
+      let(:fields) { super().merge({'user' => 'kelly'}) }
+      before do
+        subject.expects(:start).raises(Exception, 'Error in SSH connection: kelly')
+        subject.perform(:execute, workitem)
+      end
+      its(:error) { should include('Error in SSH connection: kelly') }
     end
 
     context "when a command fails" do
       before do
         subject.stubs(:start)
         subject.stubs(:perform_command).raises(MaestroDev::Plugin::SSHWorker::SSHCommandError, "ehh?")
+        subject.perform(:execute, workitem)
       end
 
-      it "should set the error field correctly if a command fails (ignore == false)" do
-        workitem = {'fields' => fields}
-        subject.perform(:execute, workitem)
-        workitem['fields']['__error__'].should include('ehh?')
-        workitem['__output__'].should include("\nOf 2 commands: 1 excecuted, 1 failed. (ignore_errors = false)")
+      context "and ignore is false" do
+        its(:error) { should include('ehh?') }
+        its(:output) { should include("\nOf 2 commands: 1 excecuted, 1 failed. (ignore_errors = false)") }
       end
 
-      it "should not set the error field if a command fails (ignore == true)" do
-        workitem = {'fields' => fields.merge({'ignore_errors' => true})}
-        subject.perform(:execute, workitem)
-        workitem['fields']['__error__'].should be_nil
-        workitem['__output__'].should include("\nOf 2 commands: 2 excecuted, 2 failed. (ignore_errors = true)")
+      context "and ignore is true" do
+        let(:fields) { super().merge({'ignore_errors' => true}) }
+        its(:error) { should be_nil }
+        its(:output) { should include("\nOf 2 commands: 2 excecuted, 2 failed. (ignore_errors = true)") }
       end
     end
   end
