@@ -79,13 +79,13 @@ describe MaestroDev::Plugin::SSHWorker do
 
       context "and ignore is false" do
         its(:error) { should include('ehh?') }
-        its(:output) { should include("\nOf 2 commands: 1 excecuted, 1 failed. (ignore_errors = false)") }
+        its(:output) { should include("\nOf 2 commands: 1 executed, 1 failed. (ignore_errors = false)") }
       end
 
       context "and ignore is true" do
         let(:fields) { super().merge({'ignore_errors' => true}) }
         its(:error) { should be_nil }
-        its(:output) { should include("\nOf 2 commands: 2 excecuted, 2 failed. (ignore_errors = true)") }
+        its(:output) { should include("\nOf 2 commands: 2 executed, 2 failed. (ignore_errors = true)") }
       end
     end
   end

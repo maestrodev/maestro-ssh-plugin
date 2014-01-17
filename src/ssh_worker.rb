@@ -29,6 +29,7 @@ module MaestroDev
         do_ssh do |session|
           @commands.each do |command|
             command_count += 1
+            start = Time.now
             begin
               perform_command(session, command)
             rescue SSHCommandError => e
@@ -39,11 +40,13 @@ module MaestroDev
               else
                 raise PluginError, e.message
               end
+            ensure
+              write_output("\nCommand #{command_count}/#{@commands.size} executed in #{(Time.now-start).round(2)} seconds\n")
             end
           end
         end
       ensure
-        write_output("\nOf #{@commands.size} commands: #{command_count} excecuted, #{error_count} failed. (ignore_errors = #{@ignore_errors})", :buffer => true)
+        write_output("\nOf #{@commands.size} commands: #{command_count} executed, #{error_count} failed. (ignore_errors = #{@ignore_errors})", :buffer => true)
       end
   
       private
