@@ -73,7 +73,7 @@
             "value": 10
           },
           "wait": {
-            "description": "Time To Wait Between Connections (Seconds)",
+            "description": "Time to wait between connection attempts (Seconds)",
             "required": false,
             "type": "Integer",
             "value": 10
@@ -167,7 +167,7 @@
             "value": 10
           },
           "wait": {
-            "description": "Time To Wait Between Connections (Seconds)",
+            "description": "Time to wait between connection attempts (Seconds)",
             "required": false,
             "type": "Integer",
             "value": 10
@@ -261,7 +261,7 @@
             "value": 10
           },
           "wait": {
-            "description": "Time To Wait Between Connections (Seconds)",
+            "description": "Time to wait between connection attempts (Seconds)",
             "required": false,
             "type": "Integer",
             "value": 10
