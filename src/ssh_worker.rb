@@ -69,7 +69,7 @@ module MaestroDev
         exit_code = nil
         exit_signal = nil
         is_success = true
-        write_output("\nssh> #{command}\n", :buffer => true)
+        write_output("\nssh> #{command}\n")
   
         session.open_channel do |channel|
           channel.exec(command) do |ch, success|
