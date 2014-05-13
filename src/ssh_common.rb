@@ -122,7 +122,9 @@ module MaestroDev
             sleep wait
             raise PluginError, "Failed To Connect To #{server} After #{trys} Trys (Timeout::Error)" if trys >= retries
           rescue Net::SSH::AuthenticationFailed => e
-            raise PluginError, "Authentication Failed - please check username, password, and any public-keys. #{e.class} #{e}"
+            write_output("\nAuthentication Failed (#{Time.now - start}s). Sleeping for #{wait}s")
+            sleep wait
+            raise PluginError, "Authentication Failed - please check username, password, and any public-keys. #{e.class} #{e}" if trys >= retries
           end
         end
         @session
